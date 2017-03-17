@@ -42,6 +42,14 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	// Check mouse
+	if (wnd.mouse.LeftIsPressed())
+	{
+		field.OnRevealClick(wnd.mouse.GetPos());
+	}
+
+
+
 	/*while( !wnd.mouse.IsEmpty() )
 	{
 		const auto e = wnd.mouse.Read();
