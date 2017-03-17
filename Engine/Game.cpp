@@ -22,11 +22,13 @@
 #include "Game.h"
 #include "SpriteCodex.h"
 
+
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	field( gfx.GetRect().GetCenter(),4 )
+	field(20)
+	//field( gfx.GetRect().GetCenter(),4 )
 {
 }
 
@@ -40,7 +42,7 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	while( !wnd.mouse.IsEmpty() )
+	/*while( !wnd.mouse.IsEmpty() )
 	{
 		const auto e = wnd.mouse.Read();
 		if( field.GetState() == MemeField::State::Memeing )
@@ -62,14 +64,17 @@ void Game::UpdateModel()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void Game::ComposeFrame()
 {
-	field.Draw( gfx );
+	field.Draw(gfx);
+
+
+	/*field.Draw( gfx );
 	if( field.GetState() == MemeField::State::Winrar )
 	{
 		SpriteCodex::DrawWin( gfx.GetRect().GetCenter(),gfx );
-	}
+	}*/
 }
