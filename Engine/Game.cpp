@@ -28,7 +28,6 @@ Game::Game( MainWindow& wnd )
 	wnd( wnd ),
 	gfx( wnd ),
 	field(20)
-	//field( gfx.GetRect().GetCenter(),4 )
 {
 }
 
@@ -42,47 +41,36 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	// Check mouse
-	if (wnd.mouse.LeftIsPressed())
-	{
-		field.OnRevealClick(wnd.mouse.GetPos());
-	}
-
-
-
-	/*while( !wnd.mouse.IsEmpty() )
+	// Events to process for mouse
+	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
-		if( field.GetState() == MemeField::State::Memeing )
+
+		// Left pressed for flags
+		if (e.GetType() == Mouse::Event::Type::LPress)
 		{
-			if( e.GetType() == Mouse::Event::Type::LPress )
-			{
-				const Vei2 mousePos = e.GetPos();
-				if( field.GetRect().Contains( mousePos ) )
-				{
-					field.OnRevealClick( mousePos );
-				}
-			}
-			else if( e.GetType() == Mouse::Event::Type::RPress )
-			{
-				const Vei2 mousePos = e.GetPos();
-				if( field.GetRect().Contains( mousePos ) )
-				{
-					field.OnFlagClick( mousePos );
-				}
+			const Vei2 mousePosition = e.GetPos();
+
+			if (field.GetRect().Contains(mousePosition))
+			{				
+				field.OnRevealClick(mousePosition);
 			}
 		}
-	}*/
+		// Right pressed for reveal
+		else if (e.GetType() == Mouse::Event::Type::RPress)
+		{
+			const Vei2 mousePosition = e.GetPos();
+
+			if (field.GetRect().Contains(mousePosition))
+			{
+				field.OnFlagClick(mousePosition);
+			}
+		}
+	}
 }
 
 void Game::ComposeFrame()
 {
 	field.Draw(gfx);
 
-
-	/*field.Draw( gfx );
-	if( field.GetState() == MemeField::State::Winrar )
-	{
-		SpriteCodex::DrawWin( gfx.GetRect().GetCenter(),gfx );
-	}*/
 }
