@@ -17,9 +17,9 @@ private:
 			Revealed
 
 		};
-		void SpawnMine();
-		bool HasMine() const;
-		void Draw(const Vei2 screenPos, Graphics& gfx) const;
+		void SpawnBomb();
+		bool HasBomb() const;
+		void Draw(const Vei2 screenPos, bool fucked, Graphics& gfx) const;
 		void Reveal();
 		bool IsRevealed() const;
 		void ToggleFlag();
@@ -49,6 +49,9 @@ private:
 
 	static constexpr int width = 20;
 	static constexpr int height = 16;
+
+	bool isFucked = false;
+
 	// Tiles in the field
 	Tile field[width * height];
 };
