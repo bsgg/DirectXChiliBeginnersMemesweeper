@@ -131,7 +131,8 @@ void MineField::Tile::SetNeighborBombCount(int bombCount)
 	nNeighborBombs = bombCount;
 }
 
-MineField::MineField(int nMines)
+MineField::MineField(const Vei2 center, int nMines)
+	:topLeft(center - Vei2(width * SpriteCodex::tileSize, height * SpriteCodex::tileSize) /2)
 {
 	// nMines only can be more than 0 and less than the mine field size
 	assert(nMines > 0 && (nMines < width * height));
@@ -141,6 +142,7 @@ MineField::MineField(int nMines)
 	// Random position for the mine
 	std::uniform_int_distribution<int> xDist(0, width - 1);
 	std::uniform_int_distribution<int> yDist(0, height - 1);
+
 
 
 	// Create mines until the nMines are filled
@@ -169,18 +171,18 @@ void MineField::Draw(Graphics& gfx) const
 {
 	gfx.DrawRect(GetRect(), SpriteCodex::baseColor);
 
-	for (Vei2 gridPos = { 0,0 }; gridPos.y < height; gridPos.y++)
+	for (Vei2 gridPos = {0,0 }; gridPos.y < height; gridPos.y++)
 	{
 		for (gridPos.x = 0; gridPos.x < width; gridPos.x++)
 		{
-			TileAt(gridPos).Draw(gridPos * SpriteCodex::tileSize, isFucked, gfx);
+			TileAt(gridPos).Draw(topLeft + gridPos * SpriteCodex::tileSize, isFucked, gfx);
 		}
 	}
 }
 
 RectI MineField::GetRect() const
 {
-	return RectI(0,width * SpriteCodex::tileSize,0,height * SpriteCodex::tileSize);
+	return RectI(topLeft,width *  SpriteCodex::tileSize,height*  SpriteCodex::tileSize);
 }
 
 void MineField::OnRevealClick(const Vei2 screenPos)
@@ -232,7 +234,7 @@ const MineField::Tile & MineField::TileAt(const Vei2 & gridPos) const
 Vei2 MineField::ScreenToGrid(const Vei2 & screenPos)
 {
 	// Convert screen position (pixels) into grid position (tiles)
-	return (screenPos/SpriteCodex::tileSize);
+	return ((screenPos - topLeft)/SpriteCodex::tileSize);
 }
 
 int MineField::CountNeighborBombs(const Vei2& gridPos)
