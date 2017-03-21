@@ -27,7 +27,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	field(gfx.GetRect().GetCenter(), 20)
+	field(gfx.GetRect().GetCenter(), 4)
 {
 }
 
@@ -71,6 +71,12 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
+	
 	field.Draw(gfx);
+
+	if (field.GameIsWon())
+	{
+		SpriteCodex::DrawWin(gfx.GetRect().GetCenter(), gfx);
+	}
 
 }

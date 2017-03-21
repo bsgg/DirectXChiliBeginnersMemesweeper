@@ -201,8 +201,9 @@ void MineField::OnRevealClick(const Vei2 screenPos)
 			tile.Reveal();
 
 			if (tile.HasBomb())
-			{
+			{				
 				isFucked = true;
+				sndLose.Play();
 			}
 		}
 	}	
@@ -261,4 +262,24 @@ int MineField::CountNeighborBombs(const Vei2& gridPos)
 	}
 
 	return count;
+}
+
+bool MineField::GameIsWon() const
+{
+	// Scan the whole field to check if all of the bombs have been flagged
+	for (const Tile& tile : field)
+	{
+		if ( (tile.HasBomb() && !tile.IsFlagged()) ||
+			 (!tile.HasBomb()  && (!tile.IsRevealed())) )
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool MineField::GameIsLost() const
+{
+	return isFucked;
 }
