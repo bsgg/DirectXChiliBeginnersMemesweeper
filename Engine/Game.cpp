@@ -40,30 +40,33 @@ void Game::Go()
 }
 
 void Game::UpdateModel()
-{
+{	
 	// Events to process for mouse
 	while (!wnd.mouse.IsEmpty())
 	{
-		const auto e = wnd.mouse.Read();
-
-		// Left pressed for flags
-		if (e.GetType() == Mouse::Event::Type::LPress)
+		if (field.GetState() == MineField::State::Mineming)
 		{
-			const Vei2 mousePosition = e.GetPos();
+			const auto e = wnd.mouse.Read();
 
-			if (field.GetRect().Contains(mousePosition))
-			{				
-				field.OnRevealClick(mousePosition);
-			}
-		}
-		// Right pressed for reveal
-		else if (e.GetType() == Mouse::Event::Type::RPress)
-		{
-			const Vei2 mousePosition = e.GetPos();
-
-			if (field.GetRect().Contains(mousePosition))
+			// Left pressed for flags
+			if (e.GetType() == Mouse::Event::Type::LPress)
 			{
-				field.OnFlagClick(mousePosition);
+				const Vei2 mousePosition = e.GetPos();
+
+				if (field.GetRect().Contains(mousePosition))
+				{
+					field.OnRevealClick(mousePosition);
+				}
+			}
+			// Right pressed for reveal
+			else if (e.GetType() == Mouse::Event::Type::RPress)
+			{
+				const Vei2 mousePosition = e.GetPos();
+
+				if (field.GetRect().Contains(mousePosition))
+				{
+					field.OnFlagClick(mousePosition);
+				}
 			}
 		}
 	}
@@ -74,7 +77,7 @@ void Game::ComposeFrame()
 	
 	field.Draw(gfx);
 
-	if (field.GameIsWon())
+	if (field.GetState() == MineField::State::Winrar)
 	{
 		SpriteCodex::DrawWin(gfx.GetRect().GetCenter(), gfx);
 	}

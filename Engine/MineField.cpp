@@ -18,20 +18,20 @@ bool MineField::Tile::HasBomb() const
 	return hasBomb;
 }
 
-void MineField::Tile::Draw(const Vei2 screenPos, bool fucked, Graphics & gfx) const
+void MineField::Tile::Draw(const Vei2 screenPos, MineField::State state, Graphics & gfx) const
 {
-	if (!fucked)
+	if (state != MineField::State::Fucked)
 	{
-		switch (state)
+		switch (stateTile)
 		{
-		case MineField::Tile::State::Hidden:
+		case MineField::Tile::StateTile::Hidden:
 			SpriteCodex::DrawTileButton(screenPos, gfx);
 			break;
-		case MineField::Tile::State::Flagged:
+		case MineField::Tile::StateTile::Flagged:
 			SpriteCodex::DrawTileButton(screenPos, gfx);
 			SpriteCodex::DrawTileFlag(screenPos, gfx);
 			break;
-		case MineField::Tile::State::Revealed:
+		case MineField::Tile::StateTile::Revealed:
 			if (!hasBomb)
 			{
 				SpriteCodex::DrawTileNumber(screenPos, nNeighborBombs, gfx);
@@ -47,9 +47,9 @@ void MineField::Tile::Draw(const Vei2 screenPos, bool fucked, Graphics & gfx) co
 		}
 	}else // We are fucked
 	{
-		switch (state)
+		switch (stateTile)
 		{
-		case MineField::Tile::State::Hidden:
+		case MineField::Tile::StateTile::Hidden:
 
 			if (HasBomb())
 			{
@@ -62,7 +62,7 @@ void MineField::Tile::Draw(const Vei2 screenPos, bool fucked, Graphics & gfx) co
 
 			
 			break;
-		case MineField::Tile::State::Flagged:
+		case MineField::Tile::StateTile::Flagged:
 			if (HasBomb())
 			{
 				SpriteCodex::DrawTileBomb(screenPos, gfx);
@@ -75,7 +75,7 @@ void MineField::Tile::Draw(const Vei2 screenPos, bool fucked, Graphics & gfx) co
 			}
 
 			break;
-		case MineField::Tile::State::Revealed:
+		case MineField::Tile::StateTile::Revealed:
 			if (!HasBomb())
 			{
 				SpriteCodex::DrawTileNumber(screenPos, nNeighborBombs, gfx);
@@ -95,14 +95,14 @@ void MineField::Tile::Draw(const Vei2 screenPos, bool fucked, Graphics & gfx) co
 void MineField::Tile::Reveal()
 {
 	// Only call this function if state is hidden
-	assert(state == State::Hidden);
+	assert(stateTile == StateTile::Hidden);
 
-	state = State::Revealed;
+	stateTile = StateTile::Revealed;
 }
 
 bool MineField::Tile::IsRevealed() const
 {
-	return (state == State::Revealed);
+	return (stateTile == StateTile::Revealed);
 }
 
 void MineField::Tile::ToggleFlag()
@@ -110,17 +110,17 @@ void MineField::Tile::ToggleFlag()
 	// Only call this function if state is hidden
 	assert(!IsRevealed());
 
-	if (state == State::Hidden)
+	if (stateTile == StateTile::Hidden)
 	{
-		state = State::Flagged;
+		stateTile = StateTile::Flagged;
 	}else
 	{
-		state = State::Hidden;
+		stateTile = StateTile::Hidden;
 	}
 }
 bool MineField::Tile::IsFlagged() const
 {
-	return (state == State::Flagged);
+	return (stateTile == StateTile::Flagged);
 }
 
 void MineField::Tile::SetNeighborBombCount(int bombCount)
@@ -177,7 +177,7 @@ void MineField::Draw(Graphics& gfx) const
 	{
 		for (gridPos.x = 0; gridPos.x < width; gridPos.x++)
 		{
-			TileAt(gridPos).Draw(topLeft + gridPos * SpriteCodex::tileSize, isFucked, gfx);
+			TileAt(gridPos).Draw(topLeft + gridPos * SpriteCodex::tileSize, state, gfx);
 		}
 	}
 }
@@ -189,7 +189,7 @@ RectI MineField::GetRect() const
 
 void MineField::OnRevealClick(const Vei2 screenPos)
 {
-	if (!isFucked)
+	if (state == State::Mineming)
 	{
 		const Vei2 gridPos = ScreenToGrid(screenPos);
 		assert(gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height);
@@ -202,8 +202,12 @@ void MineField::OnRevealClick(const Vei2 screenPos)
 
 			if (tile.HasBomb())
 			{				
-				isFucked = true;
+				state = State::Fucked;
 				sndLose.Play();
+			}
+			else if (GameIsWon())
+			{
+				state == State::Winrar;			
 			}
 		}
 	}	
@@ -211,7 +215,7 @@ void MineField::OnRevealClick(const Vei2 screenPos)
 
 void MineField::OnFlagClick(const Vei2 screenPos)
 {
-	if (!isFucked)
+	if (state == State::Mineming)
 	{
 		const Vei2 gridPos = ScreenToGrid(screenPos);
 		assert(gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height);
@@ -264,6 +268,12 @@ int MineField::CountNeighborBombs(const Vei2& gridPos)
 	return count;
 }
 
+MineField::State MineField::GetState() const
+{
+	return state;
+}
+
+
 bool MineField::GameIsWon() const
 {
 	// Scan the whole field to check if all of the bombs have been flagged
@@ -279,7 +289,3 @@ bool MineField::GameIsWon() const
 	return true;
 }
 
-bool MineField::GameIsLost() const
-{
-	return isFucked;
-}
