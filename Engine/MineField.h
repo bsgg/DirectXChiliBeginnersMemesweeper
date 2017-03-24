@@ -33,6 +33,7 @@ private:
 		bool IsRevealed() const;
 		void ToggleFlag();
 		bool IsFlagged() const;
+		bool HasNoNeighborBombs() const;
 		void SetNeighborBombCount(int bombCount);
 
 	private:

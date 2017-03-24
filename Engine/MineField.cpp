@@ -123,6 +123,12 @@ bool MineField::Tile::IsFlagged() const
 	return (stateTile == StateTile::Flagged);
 }
 
+bool MineField::Tile::HasNoNeighborBombs() const
+{
+	return (nNeighborBombs == 0);
+}
+
+
 void MineField::Tile::SetNeighborBombCount(int bombCount)
 {
 	// Only if this tile is initialized
@@ -207,7 +213,7 @@ void MineField::OnRevealClick(const Vei2 screenPos)
 			}
 			else if (GameIsWon())
 			{
-				state == State::Winrar;			
+				state = State::Winrar;			
 			}
 		}
 	}	
