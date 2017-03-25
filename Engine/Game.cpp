@@ -29,6 +29,7 @@ Game::Game( MainWindow& wnd )
 	gfx( wnd ),
 	field(gfx.GetRect().GetCenter(), 4)
 {
+
 }
 
 void Game::Go()
@@ -71,6 +72,7 @@ void Game::UpdateModel()
 		}
 	}
 }
+
 
 void Game::ComposeFrame()
 {

@@ -200,21 +200,11 @@ void MineField::OnRevealClick(const Vei2 screenPos)
 		const Vei2 gridPos = ScreenToGrid(screenPos);
 		assert(gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height);
 
-		Tile& tile = TileAt(gridPos);
+		RevealTile(gridPos);
 
-		if (!tile.IsRevealed() && !tile.IsFlagged())
+		if (GameIsWon())
 		{
-			tile.Reveal();
-
-			if (tile.HasBomb())
-			{				
-				state = State::Fucked;
-				sndLose.Play();
-			}
-			else if (GameIsWon())
-			{
-				state = State::Winrar;			
-			}
+			state = State::Winrar;
 		}
 	}	
 }
@@ -232,6 +222,40 @@ void MineField::OnFlagClick(const Vei2 screenPos)
 			TileAt(gridPos).ToggleFlag();
 		}
 	}
+}
+
+void MineField::RevealTile(const Vei2& gridPos)
+{
+	Tile& tile = TileAt(gridPos);
+
+	if (!tile.IsRevealed() && !tile.IsFlagged())
+	{
+		tile.Reveal();
+
+		if (tile.HasBomb())
+		{
+			state = State::Fucked;
+			sndLose.Play();
+		}
+		else if (tile.HasNoNeighborBombs())
+		{
+
+			// Set the boundaries for a gridPos. Maximun 9 tiles covering that gridPos
+			// Taking into account the boundaries of the grid
+			const int xStart = std::max(0, gridPos.x - 1);
+			const int yStart = std::max(0, gridPos.y - 1);
+			const int xEnd = std::min(width - 1, gridPos.x + 1);
+			const int yEnd = std::min(height - 1, gridPos.y + 1);
+
+			for (Vei2 gridPos = { xStart,yStart }; gridPos.y <= yEnd; gridPos.y++)
+			{
+				for (gridPos.x = xStart; gridPos.x <= xEnd; gridPos.x++)
+				{
+					RevealTile(gridPos);					
+				}
+			}
+		}
+	}	
 }
 
 MineField::Tile & MineField::TileAt(const Vei2 & gridPos)
@@ -286,7 +310,7 @@ bool MineField::GameIsWon() const
 	for (const Tile& tile : field)
 	{
 		if ( (tile.HasBomb() && !tile.IsFlagged()) ||
-			 (!tile.HasBomb()  && (!tile.IsRevealed())) )
+			 (!tile.HasBomb() && (!tile.IsRevealed())) )
 		{
 			return false;
 		}
